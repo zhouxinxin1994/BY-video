@@ -1,2 +1,3 @@
 # BY-video
-Bilibili &amp; YouTube videos and quickly insert timestamp notes.
+This is plus of obsidian
+This plus function is Bilibili &amp; YouTube videos and quickly insert timestamp notes.
