@@ -1,0 +1,10 @@
+{
+  "id": "by-video",
+  "name": "by-video",
+  "version": "1.0.0",
+  "minAppVersion": "1.5.0",
+  "description": "Bilibili & YouTube videos and quickly insert timestamp notes.",
+  "author": "Jinbo",
+  "authorUrl": "https://example.com",
+  "isDesktopOnly": false
+}

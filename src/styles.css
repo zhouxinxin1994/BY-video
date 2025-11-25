@@ -1,0 +1,13 @@
+.vls-video-container {
+	position: relative;
+	width: 100%;
+	max-width: 900px;
+	aspect-ratio: 16 / 9;
+	margin: 0.5rem 0 1rem 0;
+}
+
+.vls-video-iframe {
+	width: 100%;
+	height: 100%;
+	border: none;
+}
