@@ -1,32 +1,49 @@
 const { Plugin, MarkdownView, Notice, requestUrl } = require("obsidian");
 
 /** 解析 “1:23” / “00:01:23” 为秒数 */
-function parseTimestampToSeconds(input) {
+function parseTimestampToSeconds(raw) {
+	if (!raw) return null;
+
+	// 统一：去掉两侧空白 & 把全角冒号替换成半角
+	const input = raw.trim().replace(/：/g, ":");
 	if (!input) return null;
-	const parts = input.trim().split(":").map((p) => p.trim());
+
+	const parts = input.split(":").map((p) => p.trim());
 	if (parts.some((p) => p === "")) return null;
 
-	let seconds = 0;
-
+	// 只有一段：纯秒数
 	if (parts.length === 1) {
 		const s = Number(parts[0]);
 		if (Number.isNaN(s) || s < 0) return null;
-		seconds = s;
-	} else if (parts.length === 2) {
-		const m = Number(parts[0]);
-		const s = Number(parts[1]);
-		if ([m, s].some((x) => Number.isNaN(x) || x < 0)) return null;
-		seconds = m * 60 + s;
-	} else if (parts.length === 3) {
+		return s;
+	}
+
+	// 两段：优先按 MM:SS；如果第二段 >= 60，就按 HH:MM
+	if (parts.length === 2) {
+		const a = Number(parts[0]);
+		const b = Number(parts[1]);
+		if ([a, b].some((x) => Number.isNaN(x) || x < 0)) return null;
+
+		if (b >= 60) {
+			// 形如 1:75 这种怪格式，就当成 "1 小时 75 分钟"
+			return a * 3600 + b * 60;
+		} else {
+			// 正常 MM:SS
+			return a * 60 + b;
+		}
+	}
+
+	// 三段：HH:MM:SS
+	if (parts.length === 3) {
 		const h = Number(parts[0]);
 		const m = Number(parts[1]);
 		const s = Number(parts[2]);
 		if ([h, m, s].some((x) => Number.isNaN(x) || x < 0)) return null;
-		seconds = h * 3600 + m * 60 + s;
-	} else {
-		return null;
+		return h * 3600 + m * 60 + s;
 	}
-	return seconds;
+
+	// 再多就不支持了
+	return null;
 }
 
 /** 秒 → “mm:ss” / “hh:mm:ss” */
@@ -35,8 +52,10 @@ function formatSeconds(seconds) {
 	const h = Math.floor(seconds / 3600);
 	const m = Math.floor((seconds % 3600) / 60);
 	const s = seconds % 60;
+
 	const mm = String(m).padStart(2, "0");
 	const ss = String(s).padStart(2, "0");
+
 	if (h > 0) {
 		const hh = String(h).padStart(2, "0");
 		return `${hh}:${mm}:${ss}`;
